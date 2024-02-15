@@ -6,6 +6,7 @@ from datetime import timedelta
 import random
 from django.contrib.auth import get_user_model
 from django.db import models
+# import git
 from qux.models import QuxModel
 from faker import Faker
 
@@ -185,6 +186,7 @@ class Course(QuxModel):
         """
         return Program.objects.filter(assignment__course=self)
 
+    @property
     def students(self):
         """
         returns students associated with this course
@@ -197,6 +199,7 @@ class Course(QuxModel):
         """
         return Content.objects.filter(assignment__course=self).distinct()
 
+    @property
     def assignments(self):
         """
         returns assignments associated with this course
@@ -207,7 +210,7 @@ class Course(QuxModel):
         """
         number of assignments that are completed and graded 100%
         """
-        StudentAssignment.objects.filter(assignment__course=self).distinct()
+        return StudentAssignment.objects.filter(assignment__course=self).distinct()
 
 
 class Content(QuxModel):
@@ -248,7 +251,7 @@ class Content(QuxModel):
         """
         return number of courses
         """
-        Course.objects.filter(assignment__content=self).distinct()
+        return Course.objects.filter(assignment__content=self).distinct()
 
     def assignments(self):
         """
@@ -302,7 +305,8 @@ class Student(QuxModel):
         """
         return assignments
         """
-        return self.studentassignment_set.all()
+        studentassignments = self.studentassignment_set.all().distinct()
+        return [assignment.assignment for assignment in studentassignments]
 
     def assignments_submitted(self, assignment=None):
         """
@@ -346,6 +350,33 @@ class Student(QuxModel):
         total_assignments = self.studentassignment_set.all().count()
         total_grade = sum(assignment.grade for assignment in submitted_assignments)
         return round(total_grade / total_assignments, 2)
+
+    def get_grade(self, assignments):
+        """
+        return the grade of all the assignments of a student
+        """
+        assignment_grade = {}
+        for assignment in assignments:
+            assignmentgrade = StudentAssignment.objects.filter(
+                student=self, assignment=assignment
+            )
+            total_grade = sum(assignment.grade for assignment in assignmentgrade)
+            assignment_grade[assignment] = round(total_grade / len(assignmentgrade), 2)
+        return assignment_grade
+
+    def find_total_submissions(self, assignments):
+        """
+        return the total number of submissions of each assignment
+        """
+        submitted_assignments = {}
+        for assignment in assignments:
+            total_submissions = len(
+                StudentAssignment.objects.filter(
+                    assignment=assignment.assignment, student=self
+                )
+            )
+            submitted_assignments[assignment.assignment] = total_submissions
+        return submitted_assignments
 
 
 class Assignment(QuxModel):
@@ -424,6 +455,20 @@ class Assignment(QuxModel):
         total_grade = sum(submission.grade for submission in submissions)
         return round(total_grade / assignments, 2)
 
+    # def clone_repo_for_student(self, course_repo_url, student_username):
+    #     repo = git.Repo.clone_from(
+    #         course_repo_url,
+    #         f"https://github.com/{student_username}/{self.content.name}",
+    #     )
+    #     return repo
+
+    # def save(self, **kwargs):
+    #     students = Student.objects.all()
+    #     for student in students:
+    #         self.clone_repo_for_student(self.content.repo, student.user.username)
+
+    #     return super().save(**kwargs)
+
 
 class StudentAssignment(QuxModel):
     """
@@ -450,7 +495,7 @@ class StudentAssignment(QuxModel):
         """
         display
         """
-        return f"{self.id}"
+        return f"{self.student} - {self.assignment}"
 
     @classmethod
     def generate_random_data(cls):

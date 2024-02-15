@@ -185,8 +185,6 @@ class ContentAdmin(admin.ModelAdmin):
         number of courses
         """
         courses = obj.courses()
-        if courses is None:
-            return 0
         unique_id = [course.id for course in courses]
         if courses:
             url = '<a href="/admin/voyage/course/?id__in='
@@ -264,7 +262,7 @@ class CourseAdmin(admin.ModelAdmin):
         """
         number of assignments in each course.
         """
-        assignments = obj.assignments()
+        assignments = obj.assignments
         unique_id = [assignment.id for assignment in assignments]
         if assignments:
             url = '<a href="/admin/voyage/assignment/?id__in='
@@ -280,8 +278,6 @@ class CourseAdmin(admin.ModelAdmin):
         number of assignments that are completed and graded 100%
         """
         assignments = obj.completed_assignments()
-        if assignments is None:
-            return 0
         unique_id = [assignment.id for assignment in assignments]
         if assignments:
             url = '<a href="/admin/voyage/assignment/?id__in='

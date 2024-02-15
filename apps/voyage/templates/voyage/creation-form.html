@@ -1,0 +1,17 @@
+{% extends 'voyage/base.html' %}
+
+{% block content %}
+
+    <div class="container border border-dark mt-4 mb-4 w-50">
+        <div class="p-3 ">
+            <h1>Add {{heading}}</h1>
+            <form method="post" action="">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-info">Add</button>
+            </form>
+        </div>
+    </div>
+
+
+{% endblock %}

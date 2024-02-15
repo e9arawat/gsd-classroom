@@ -1,0 +1,31 @@
+{% extends 'voyage/base.html' %}
+
+{% block content %}
+
+{% if error_message %}
+    {{error_message}}
+{% else %}
+
+    <div class="container mt-5 border border-dark p-3 bg-light w-50">
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    {% for header in headers %}
+                    <th class="text-center">{{header}}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for k, v in assignments.items %}
+                <tr>
+                    <td>{{k}}</td>
+                    <td class="text-end">{{v}}</td>
+                </tr>
+                {% endfor %} 
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+
+{% endblock %}

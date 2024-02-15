@@ -1,0 +1,16 @@
+{% extends 'voyage/base.html' %}
+
+{% block content %}
+    <div class="container p-3 mt-5">
+        <ul>
+            {% for object in object_list %}
+    
+            <li><a href="../../dashboard/{{list_of}}/{{object.id}}">{{object.user}}</a></li>
+    
+            {% endfor %}
+    
+        </ul>
+    </div>
+    
+
+{% endblock %}

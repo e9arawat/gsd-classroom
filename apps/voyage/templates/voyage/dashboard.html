@@ -1,0 +1,38 @@
+
+{% extends 'voyage/base.html' %}
+
+{% block content %}
+
+        {% if error_message %}
+            {{error_message}}
+        {% else %}
+
+            <div class="container mt-5 border border-dark p-3 bg-light">
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Courses</th>
+                            {% if designation %}
+                            <th class="text-center">No of Students</th>
+                            {% endif %}
+                            <th class="text-center">No. of Assignments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in courses %}
+                        <tr>
+                            <td>{{course}}</td>
+                            {% if designation %}
+                            <td class="text-end">{{course.students|length}}</td>
+                            {% endif %}
+                            <td class="text-end">{{course.assignments|length}}</td>
+                        </tr>
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>
+
+        {% endif %}
+
+  {% endblock %}
