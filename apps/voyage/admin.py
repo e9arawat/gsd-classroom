@@ -3,7 +3,6 @@ Voyage admin
 """
 
 from django.contrib import admin
-from django.urls import reverse
 from django.utils.html import format_html
 from .models import (
     Faculty,
@@ -41,13 +40,22 @@ class FacultyAdmin(admin.ModelAdmin):
         #     return format_html('<a href="{}">{}</a>', faculty_courses_url, courses)
         # return courses
 
+        # courses = obj.courses()
+        # if courses:
+        #     links = []
+        #     for course in courses:
+        #         url = reverse("admin:voyage_course_change", args=[course.id])
+        #         links.append(f'<option> <a href="{url}">{course.name}</a> </option>')
+        #     return format_html("\n".join(links))
+        # return 0
+
         courses = obj.courses()
+        unique_id = [course.id for course in courses]
         if courses:
-            links = []
-            for course in courses:
-                url = reverse("admin:voyage_course_change", args=[course.id])
-                links.append(f'<option> <a href="{url}">{course.name}</a> </option>')
-            return format_html("\n".join(links))
+            url = '<a href="/admin/voyage/course/?id__in='
+            for i in unique_id:
+                url = "".join((url, f"{i},"))
+            return format_html(url[:-1] + f'">{len(courses)}</a>')
         return 0
 
     num_courses_taught.short_description = "Courses Taught"
@@ -57,12 +65,12 @@ class FacultyAdmin(admin.ModelAdmin):
         number of assignments created by each faculty.
         """
         assignments = obj.num_assignments()
+        unique_id = [assignment.id for assignment in assignments]
         if assignments:
-            links = []
-            for assignment in assignments:
-                url = reverse("admin:voyage_assignment_change", args=[assignment.id])
-                links.append(f'<option><a href="{url}">{assignment}</a></option>')
-            return format_html("\n".join(links))
+            url = '<a href="/admin/voyage/assignment/?id__in='
+            for i in unique_id:
+                url = "".join((url, f"{i},"))
+            return format_html(url[:-1] + f'">{len(assignments)}')
         return 0
 
     num_assignments.short_description = "Assignments Created"
@@ -71,7 +79,14 @@ class FacultyAdmin(admin.ModelAdmin):
         """
         number of assignments graded by each faculty.
         """
-        return obj.assignments_graded().count()
+        assignments = obj.assignments_graded()
+        unique_id = [assignment.id for assignment in assignments]
+        if assignments:
+            url = '<a href="/admin/voyage/studentassignment/?id__in='
+            for i in unique_id:
+                url = "".join((url, f"{i},"))
+            return format_html(url[:-1] + f'">{len(assignments)}')
+        return 0
 
     num_assignments_graded.short_description = "Assignments Graded"
 
@@ -96,11 +111,10 @@ class StudentAdmin(admin.ModelAdmin):
         """
         program each student is enrolled in.
         """
-        program = obj.program.name
-        if program:
-            url = reverse("admin:voyage_program_change", args=[program])
-            return format_html(f'<a href="{url}">{program}</a>')
-        return 0
+        program = obj.program
+        program_id = program.id
+        url = f"<a href=/admin/voyage/program/{program_id}/change/>{program}</a>"
+        return format_html(url)
 
     program_name.short_description = "Program"
 
@@ -109,12 +123,12 @@ class StudentAdmin(admin.ModelAdmin):
         number of courses each student is enrolled in.
         """
         courses = obj.courses()
+        unique_id = [course.id for course in courses]
         if courses:
-            links = []
-            for course in courses:
-                url = reverse("admin:voyage_course_change", args=[course.id])
-                links.append(f'<a href="{url}">{course}</a>')
-            return format_html("\n".join(links))
+            url = '<a href="/admin/voyage/course/?id__in='
+            for i in unique_id:
+                url = "".join((url, f"{i},"))
+            return format_html(url[:-1] + f'">{len(courses)}')
         return 0
 
     num_courses_enrolled.short_description = "Courses Enrolled"
@@ -124,13 +138,12 @@ class StudentAdmin(admin.ModelAdmin):
         number of assignments assigned to each student.
         """
         assignments = obj.assignments()
-
+        unique_id = [assignment.id for assignment in assignments]
         if assignments:
-            links = []
-            for assignment in assignments:
-                url = reverse("admin:voyage_assignment_change", args=[assignment.id])
-                links.append(f'<option><a href="{url}">{assignment}</a></option>')
-            return format_html("\n".join(links))
+            url = '<a href="/admin/voyage/studentassignment/?id__in='
+            for i in unique_id:
+                url = "".join((url, f"{i},"))
+            return format_html(url[:-1] + f'">{len(assignments)}')
         return 0
 
     num_assignments_assigned.short_description = "Assignments Assigned"
@@ -140,12 +153,12 @@ class StudentAdmin(admin.ModelAdmin):
         number of assignments submitted by each student.
         """
         assignments = obj.assignments_submitted()
+        unique_id = [assignment.id for assignment in assignments]
         if assignments:
-            links = []
-            for assignment in assignments:
-                url = reverse("admin:voyage_assignment_change", args=[assignment.id])
-                links.append(f'<option><a href="{url}">{assignment}</a></option>')
-            return format_html("\n".join(links))
+            url = '<a href="/admin/voyage/studentassignment/?id__in='
+            for i in unique_id:
+                url = "".join((url, f"{i},"))
+            return format_html(url[:-1] + f'">{len(assignments)}')
         return 0
 
     num_assignments_submitted.short_description = "Assignments Submitted"
@@ -171,8 +184,16 @@ class ContentAdmin(admin.ModelAdmin):
         """
         number of courses
         """
-        ans = obj.courses()
-        return ans.count() if ans is not None else 0
+        courses = obj.courses()
+        if courses is None:
+            return 0
+        unique_id = [course.id for course in courses]
+        if courses:
+            url = '<a href="/admin/voyage/course/?id__in='
+            for i in unique_id:
+                url = "".join((url, f"{i},"))
+            return format_html(url[:-1] + f'">{len(courses)}</a>')
+        return 0
 
     num_courses_used.short_description = "Courses Used"
 
@@ -180,7 +201,14 @@ class ContentAdmin(admin.ModelAdmin):
         """
         assignments that use each content.
         """
-        return obj.assignments().count()
+        assignments = obj.assignments()
+        unique_id = [assignment.id for assignment in assignments]
+        if assignments:
+            url = '<a href="/admin/voyage/assignment/?id__in='
+            for i in unique_id:
+                url = "".join((url, f"{i},"))
+            return format_html(url[:-1] + f'">{len(assignments)}')
+        return 0
 
     num_assignments_used.short_description = "Assignments Used"
 
@@ -197,7 +225,14 @@ class ProgramAdmin(admin.ModelAdmin):
         """
         number of courses in each program.
         """
-        return len(obj.courses())
+        courses = obj.courses()
+        unique_id = [course.id for course in courses]
+        if courses:
+            url = '<a href="/admin/voyage/course/?id__in='
+            for i in unique_id:
+                url = "".join((url, f"{i},"))
+            return format_html(url[:-1] + f'">{len(courses)}</a>')
+        return 0
 
     num_courses.short_description = "Courses"
 
@@ -205,7 +240,14 @@ class ProgramAdmin(admin.ModelAdmin):
         """
         number of students in each program.
         """
-        return obj.students().count()
+        students = obj.students()
+        unique_id = [student.id for student in students]
+        if students:
+            url = '<a href="/admin/voyage/student/?id__in='
+            for i in unique_id:
+                url = "".join((url, f"{i},"))
+            return format_html(url[:-1] + f'">{len(students)}')
+        return 0
 
     num_students.short_description = "Students"
 
@@ -222,7 +264,14 @@ class CourseAdmin(admin.ModelAdmin):
         """
         number of assignments in each course.
         """
-        return obj.assignments().count()
+        assignments = obj.assignments()
+        unique_id = [assignment.id for assignment in assignments]
+        if assignments:
+            url = '<a href="/admin/voyage/assignment/?id__in='
+            for i in unique_id:
+                url = "".join((url, f"{i},"))
+            return format_html(url[:-1] + f'">{len(assignments)}')
+        return 0
 
     num_assignments.short_description = "Assignments"
 
@@ -231,7 +280,15 @@ class CourseAdmin(admin.ModelAdmin):
         number of assignments that are completed and graded 100%
         """
         assignments = obj.completed_assignments()
-        return len(assignments) if assignments is not None else 0
+        if assignments is None:
+            return 0
+        unique_id = [assignment.id for assignment in assignments]
+        if assignments:
+            url = '<a href="/admin/voyage/assignment/?id__in='
+            for i in unique_id:
+                url = "".join((url, f"{i},"))
+            return format_html(url[:-1] + f'">{len(assignments)}')
+        return 0
 
     num_completed_assignments.short_description = "Completed Assignments"
 
