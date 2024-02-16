@@ -33,6 +33,8 @@ class FacultyHomeView(ListView):
         """
         context = super().get_context_data(**kwargs)
         context["list_of"] = "faculty"
+        context["home"] = "home"
+        context["heading"] = 'Faculties'
         return context
 
 
@@ -50,6 +52,8 @@ class StudentHomeview(ListView):
         """
         context = super().get_context_data(**kwargs)
         context["list_of"] = "student"
+        context["home"] = "home"
+        context["heading"] = 'Students'
         return context
 
 
@@ -168,6 +172,7 @@ class CreateNewCourse(TemplateView):
         context = super().get_context_data(**kwargs)
         context["form"] = self.form_class(self.request.POST or None)
         context["heading"] = "Course"
+        context["designation"] = "faculty"
         return context
 
     def post(self, request, *args, **kwargs):
@@ -197,6 +202,7 @@ class CreateNewAssignment(TemplateView):
         context = super().get_context_data(**kwargs)
         context["form"] = self.form_class(self.request.POST or None)
         context["heading"] = "Assignment"
+        context["designation"] = "faculty"
         return context
 
     def post(self, request, *args, **kwargs):
