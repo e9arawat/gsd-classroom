@@ -455,19 +455,19 @@ class Assignment(QuxModel):
         total_grade = sum(submission.grade for submission in submissions)
         return round(total_grade / assignments, 2)
 
-    def repo_for_student(self, course_repo_url, student_username):
-        repo = git.Repo.clone_from(
-            course_repo_url,
-            f"https://github.com/{student_username}/{self.content.name}",
-        )
-        return repo
+    # def repo_for_student(self, course_repo_url, student_username):
+    #     repo = git.Repo.clone_from(
+    #         course_repo_url,
+    #         f"https://github.com/{student_username}/{self.content.name}",
+    #     )
+    #     return repo
 
-    def save(self, **kwargs):
-        students = Student.objects.all()
-        for student in students:
-            self.repo_for_student(self.content.repo, student.user.username)
+    # def save(self, **kwargs):
+    #     students = Student.objects.all()
+    #     for student in students:
+    #         self.repo_for_student(self.content.repo, student.user.username)
 
-        return super().save(**kwargs)
+    #     return super().save(**kwargs)
 
 
 class StudentAssignment(QuxModel):
